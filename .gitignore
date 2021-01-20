@@ -1,0 +1,15 @@
+# output
+output/*
+!output/.gitkeep
+
+# datasets
+datasets/*
+!datasets/dataset.py
+!datasets/vocab.py
+
+# ide
+.vscode/
+.idea/
+
+# cache
+__pycache__/
