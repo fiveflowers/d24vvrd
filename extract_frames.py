@@ -17,6 +17,7 @@ def args_parser():
     parser.add_argument('--f', dest='frequency', type=int, default=1, help='sample frequency')
     parser.add_argument('--input', help='path of dataset')
     parser.add_argument('--output', help='path to store images extracted from video')
+    parser.add_argument('--split', default='train', help='(train, test), ANNOTATOR NEED!')
     parser.add_argument('--anno-only', dest='need_anno', action='store_true')
     args = parser.parse_args()
 
@@ -37,6 +38,20 @@ def check_dirs(path):
         os.makedirs(path)
         print('>>> Successfully create directory {}.'.format(path))
 
+def dump_coco_file(filename, categories, annotations, images, dataset):
+    from datasets.vocab import coco_liscenses, coco_info
+    coco_annotations = {
+        'info': coco_info[dataset],
+        'type': 'instances',
+        'liscenses': coco_liscenses,
+        'categories': categories,
+        'images': images,
+        'annotations': annotations,
+    }
+    with open(filename, 'w') as f:
+        json.dump(coco_annotations, f)
+        print('>>> Successfully export annotations to {}'.format(filename))
+    
 def vidvrd_extractor(frequency, input, output):
     pass
 
@@ -84,8 +99,81 @@ def vidor_extractor(frequency, input, output):
                 frame_index += 1
     print('>>> Successfully extract frames (1/{}) from vidor dataset.'.format(frequency))
 
-def vidor_annotator(frequency, input, output):
-    pass
+def vidor_annotator(frequency, input, output, split):
+    ### BEFORE RUN
+    check_dirs(output)
+    prefix = 'training' if split == 'train' else "validation"
+    # import statistic data
+    from datasets.vocab import vidor_categories
+    cat2id = {item['name']: item['id'] for item in vidor_categories}    # categories to id
+    instance_index = 1      # instance counter
+    annotations = list()    # all annotation (coco-style)
+    images = list()
+    # prepare raw vidor annotation filenames
+    root_dir = os.path.join(input, prefix)  # vidor/training
+    sub_dirs = os.listdir(root_dir)
+    anno_vidor_fns = list()
+    for sub_dir in tqdm(sub_dirs):
+        sub_dir_path = os.path.join(root_dir, sub_dir)  # vidor/training/0000/
+        basenames = os.listdir(sub_dir_path)
+        for basename in basenames:
+            filename = os.path.join(sub_dir_path, basename) # vidor/training/1021/2405668450.json
+            anno_vidor_fns.append(filename)
+    print('>>> Successfully prepare vidor annotation files')
+    
+    ### RUNING
+    for fn in tqdm(anno_vidor_fns):
+        with open(fn, 'r') as f:
+            raw_data = json.load(f)
+
+        width = raw_data['width']
+        height = raw_data['height']
+        video_id = raw_data['video_id']
+        trajectories = raw_data['trajectories']
+        category_dict = raw_data['subject/objects']
+        
+        tid2index = dict()      # map tid to object class id
+        for item in category_dict:
+            tid = str(item['tid'])
+            tid2index[tid] = cat2id[item['category']]
+        
+        for frame_index, trajectory in enumerate(trajectories):
+            if frame_index % frequency != 0: continue
+            image_id = int("{}{:04d}".format(video_id, frame_index))
+            image_basename = '{}_{:04d}.jpg'.format(video_id, frame_index)
+            assert os.path.exists(os.path.join(output, image_basename)) # check frame image
+            if len(trajectory) == 0: continue       # pass empty anno
+            image = {
+                "file_name": image_basename,    # 4460320158_0000q.jpg
+                "height": height,
+                "width":width,
+                "id": image_id
+            }
+            images.append(image)
+            annotations_image = list()          # image = instance1 + instance2 + ...
+            for instance in trajectory:
+                tid = instance['tid']
+                category_id = tid2index[str(tid)]
+                x = instance['bbox']['xmin']
+                y = instance['bbox']['ymin']
+                h = instance['bbox']['ymax'] - instance['bbox']['ymin']
+                w = instance['bbox']['xmax'] - instance['bbox']['xmin']
+                annotation_instance = {
+                    "category_id": category_id,
+                    "area": w*h,
+                    "bbox": [x, y, w, h],
+                    "bbox_mode": 1,
+                    "image_id": image_id,
+                    "id": instance_index,
+                    "iscrowd": 0
+                }
+                instance_index += 1
+                annotations_image.append(annotation_instance)   
+            annotations.extend(annotations_image)   # add to all annotation dict
+        res_anno_fn = os.path.join(input, 'd2_{}.json'.format(split))   # coco-style annotation filename
+    
+    ### AFTER RUN
+    dump_coco_file(res_anno_fn, vidor_categories, annotations, images, 'vidor')
 
 if __name__ == "__main__":
     args = args_parser()
@@ -102,6 +190,6 @@ if __name__ == "__main__":
     }
 
     if args.need_anno:
-        annotator[args.dataset](args.frequency, args.input, args.output)
+        annotator[args.dataset](args.frequency, args.input, args.output, args.split)
     else:
         extractor[args.dataset](args.frequency, args.input, args.output)
