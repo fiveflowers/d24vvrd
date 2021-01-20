@@ -100,7 +100,7 @@ def vidor_extractor(frequency, input, output):
     print('>>> Successfully extract frames (1/{}) from vidor dataset.'.format(frequency))
 
 def vidor_annotator(frequency, input, output, split):
-    ### BEFORE RUN
+#   BEFORE RUN
     check_dirs(output)
     prefix = 'training' if split == 'train' else "validation"
     # import statistic data
@@ -121,7 +121,7 @@ def vidor_annotator(frequency, input, output, split):
             anno_vidor_fns.append(filename)
     print('>>> Successfully prepare vidor annotation files')
     
-    ### RUNING
+#   RUNING
     for fn in tqdm(anno_vidor_fns):
         with open(fn, 'r') as f:
             raw_data = json.load(f)
@@ -172,7 +172,7 @@ def vidor_annotator(frequency, input, output, split):
             annotations.extend(annotations_image)   # add to all annotation dict
         res_anno_fn = os.path.join(input, 'd2_{}.json'.format(split))   # coco-style annotation filename
     
-    ### AFTER RUN
+#   AFTER RUN
     dump_coco_file(res_anno_fn, vidor_categories, annotations, images, 'vidor')
 
 if __name__ == "__main__":
