@@ -9,6 +9,7 @@ from detectron2.data.datasets import register_coco_instances
 
 # NOTICE: ILSVRC 2016 DET = ILSVRC 2015 DET = ILSVRC 2014 DET + ILSVRC 2013 DET
 
+# VIDOR
 register_coco_instances(
     'vidor_train_16',
     {},
@@ -34,6 +35,20 @@ register_coco_instances(
     'datasets/vidor/frames@32'
 )
 register_coco_instances(
+    'vidor_train_64',
+    {},
+    'datasets/vidor/d2_train_64.json',
+    'datasets/vidor/frames@64'
+)
+register_coco_instances(
+    'vidor_test_64',
+    {},
+    'datasets/vidor/d2_test_64.json',
+    'datasets/vidor/frames@64'
+)
+
+# MS-COCO-VIDOR
+register_coco_instances(
     'vidor_coco_train',
     {},
     'datasets/coco/train_vidor.json',
@@ -45,6 +60,8 @@ register_coco_instances(
     'datasets/coco/val_minus_minival_vidor.json',
     'datasets/coco/val2014'
 )
+
+# ILSVRC-VIDOR
 register_coco_instances(
     'vidor_ilsvrc_train2013',
     {},
