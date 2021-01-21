@@ -90,7 +90,7 @@ def convert_from_ilsvrc(mode, input, output):
 #   convert ILSVRC2013_train
     new_annos_train2013 = list()
     new_images_train2013 = list()
-    dirty_data_train2013 = ['n02419796_3142.xml']
+    dirty_data_train2013 = ['n02419796_3142.xml', 'n03467517_13624.xml']
     index_instance_train2013 = 20130000000
     for iter_class in tqdm(filtered_classes):
         annos_path_iter_class = os.path.join(annos_path, 'ILSVRC2013_train', iter_class)
