@@ -170,9 +170,9 @@ def vidor_annotator(frequency, input, output, split):
                 instance_index += 1
                 annotations_image.append(annotation_instance)   
             annotations.extend(annotations_image)   # add to all annotation dict
-        res_anno_fn = os.path.join(input, 'd2_{}.json'.format(split))   # coco-style annotation filename
     
 #   AFTER RUN
+    res_anno_fn = os.path.join(input, 'd2_{}_{}.json'.format(split, frequency))   # coco-style annotation filename
     dump_coco_file(res_anno_fn, vidor_categories, annotations, images, 'vidor')
 
 if __name__ == "__main__":
