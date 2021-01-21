@@ -12,14 +12,26 @@ from detectron2.data.datasets import register_coco_instances
 register_coco_instances(
     'vidor_train_16',
     {},
-    'datasets/vidor/d2_train.json',
+    'datasets/vidor/d2_train_16.json',
     'datasets/vidor/frames@16'
 )
 register_coco_instances(
     'vidor_test_16',
     {},
-    'datasets/vidor/d2_test.json',
+    'datasets/vidor/d2_test_16.json',
     'datasets/vidor/frames@16'
+)
+register_coco_instances(
+    'vidor_train_32',
+    {},
+    'datasets/vidor/d2_train_32.json',
+    'datasets/vidor/frames@32'
+)
+register_coco_instances(
+    'vidor_test_32',
+    {},
+    'datasets/vidor/d2_test_32.json',
+    'datasets/vidor/frames@32'
 )
 register_coco_instances(
     'vidor_coco_train',
