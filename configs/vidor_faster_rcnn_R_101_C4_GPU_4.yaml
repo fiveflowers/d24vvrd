@@ -14,8 +14,8 @@ MODEL:
     BATCH_SIZE_PER_IMAGE: 128
     NUM_CLASSES: 80
 DATASETS:
-  TRAIN: ("vidor_train_16", "vidor_coco_train", "vidor_coco_val_minus_minival", "vidor_ilsvrc_train2013", "vidor_ilsvrc_train2014", )
-  TEST: ("vidor_test_16", )
+  TRAIN: ("vidor_train_32", "vidor_coco_train", "vidor_coco_val_minus_minival", "vidor_ilsvrc_train2013", "vidor_ilsvrc_train2014", )
+  TEST: ("vidor_test_32", )
 SOLVER:
   IMS_PER_BATCH: 8
   BASE_LR: 0.001
